@@ -40,3 +40,5 @@ Open http://localhost:9001 — MinIO web console.
 ## Init
 
 On first `make up`, the `minio-init` container creates two buckets: a public bucket (from `MINIO_PUBLIC_BUCKET`, default `public`) with an anonymous download policy, and a private bucket (from `MINIO_PRIVATE_BUCKET`, default `private`).
+
+The public bucket's anonymous policy allows downloading an object by its exact key (`s3:GetObject`) but NOT listing the bucket's contents (no `s3:ListBucket`).
