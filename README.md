@@ -39,4 +39,4 @@ Open http://localhost:9001 — MinIO web console.
 
 ## Init
 
-On first `make up`, `minio-init` container creates the default bucket (from `MINIO_DEFAULT_BUCKET` env var) with public download policy.
+On first `make up`, the `minio-init` container creates two buckets: a public bucket (from `MINIO_PUBLIC_BUCKET`, default `public`) with an anonymous download policy, and a private bucket (from `MINIO_PRIVATE_BUCKET`, default `private`).
