@@ -15,6 +15,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 1024M
+          cpus: '1.00'
 
   minio-init:
     image: minio/mc:RELEASE.2025-07-21T05-28-08Z
@@ -24,9 +30,30 @@ services:
     restart: "no"
     env_file:
       - .env
-    entrypoint: >
-      /bin/sh -c "set -e;
-      mc alias set minio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD};
-      mc mb minio/$${MINIO_DEFAULT_BUCKET:-uploads} --ignore-existing;
-      mc anonymous set download minio/$${MINIO_DEFAULT_BUCKET:-uploads};
-      echo 'MinIO buckets initialized';"
+    entrypoint:
+      - /bin/sh
+      - -c
+      - |
+        set -e
+        mc alias set minio http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}"
+        mc mb minio/$${MINIO_PUBLIC_BUCKET:-public} --ignore-existing
+        mc mb minio/$${MINIO_PRIVATE_BUCKET:-private} --ignore-existing
+        # Least-privilege anonymous access on the public bucket: allow object
+        # download by key (s3:GetObject) but NOT bucket listing (no
+        # s3:ListBucket). Write the policy to a temp file, then apply it
+        # idempotently with set-json.
+        cat > /tmp/public-policy.json <<EOF
+        {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": { "AWS": ["*"] },
+              "Action": ["s3:GetObject"],
+              "Resource": ["arn:aws:s3:::$${MINIO_PUBLIC_BUCKET:-public}/*"]
+            }
+          ]
+        }
+        EOF
+        mc anonymous set-json /tmp/public-policy.json minio/$${MINIO_PUBLIC_BUCKET:-public}
+        echo 'MinIO buckets initialized'
