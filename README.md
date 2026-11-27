@@ -1,6 +1,6 @@
 # dc-minio
 
-MinIO S3-compatible object storage (API on port 9000, Console on port 9001).
+MinIO S3-compatible object storage. Host ports come from `.env`: `DC_MINIO_API_PORT` (default 9000) and `DC_MINIO_CONSOLE_PORT` (default 9001).
 
 ## Quick start
 
@@ -35,7 +35,7 @@ make test             # run smoke tests (health, bucket init)
 
 ## Console
 
-Open http://localhost:9001 — MinIO web console.
+Open http://localhost:${DC_MINIO_CONSOLE_PORT} (default http://localhost:9001) — MinIO web console.
 
 ## Init
 
