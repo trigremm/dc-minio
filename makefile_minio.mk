@@ -22,6 +22,6 @@ test:
 	@echo "Test health..."
 	curl -fsS http://localhost:$${DC_MINIO_API_PORT:-9000}/minio/health/ready > /dev/null && echo "PASS: health" || (echo "FAIL: health" && exit 1)
 	@echo "Test bucket init..."
-	$(DC_BIN) run --rm minio-init /bin/sh -c "mc alias set minio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}; mc ls minio/$${MINIO_DEFAULT_BUCKET:-uploads}" > /dev/null && echo "PASS: bucket exists" || (echo "FAIL: bucket" && exit 1)
+	$(DC_BIN) run --rm minio-init /bin/sh -c "mc alias set minio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}; mc ls minio/$${MINIO_PUBLIC_BUCKET:-public} && mc ls minio/$${MINIO_PRIVATE_BUCKET:-private}" > /dev/null && echo "PASS: buckets exist" || (echo "FAIL: buckets" && exit 1)
 	@echo ""
 	@echo "All tests passed!"
